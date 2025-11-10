@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, BookOpen, Award, Star, ChevronRight, CheckCircle, XCircle, Home, User, Globe, Plus, Edit, Trash2, Save } from 'lucide-react';
+import { Trophy, BookOpen, Award, Star, ChevronRight, CheckCircle, XCircle, Home, User, Globe, Plus, Edit, Trash2, Save, Moon, Sun } from 'lucide-react';
+import GamesPanel from './components/GamesPanel';
+import BannerSlider from './components/shared/BannerSlider';
+import Footer from './components/shared/Footer';
 
 const LANGUAGES = {
   en: { name: 'English', flag: '🇬🇧' },
@@ -330,6 +333,11 @@ const App = () => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [language, setLanguage] = useState('en');
+  const [darkMode, setDarkMode] = useState(() => {
+    // Check localStorage for saved preference, default to false
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
   const [showAdmin, setShowAdmin] = useState(false);
   const [user, setUser] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
@@ -427,6 +435,34 @@ const App = () => {
         });
     }
   }, [token, path]); // Add dependencies
+
+  useEffect(() => {
+    const onPop = (e) => {
+      // if no state, fallback to hash-based or default to 'home'
+      const state = e.state || (window.location.hash ? { view: window.location.hash.replace('#','') } : null);
+      if (state && state.view) {
+        setCurrentView(state.view);
+      } else {
+        // if user used back to leave #games, go to home
+        setCurrentView('home');
+      }
+    };
+
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  // Save dark mode preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    // Apply dark mode class to document root
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   if (path.includes('/reset-password') && token) {
     return (
       <PasswordResetForm 
@@ -706,23 +742,44 @@ const App = () => {
   };
 
   const HomeView = () => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6 transition-colors">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="text-center flex-1">
-            <h1 className="text-4xl font-bold text-indigo-900 mb-2">LegalQuest</h1>
-            <p className="text-indigo-600">Learn Your Rights Through Play</p>
+            <h1 className="text-4xl font-bold text-indigo-900 dark:text-indigo-300 mb-2">LegalQuest</h1>
+            <p className="text-indigo-600 dark:text-indigo-400">Learn Your Rights Through Play</p>
           </div>
+          
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow">
-              <User className="w-5 h-5 text-indigo-600" />
-              <span className="font-semibold text-gray-800">{user?.username}</span>
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-2 rounded-lg bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow"
+              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {darkMode ? (
+                <Sun className="w-5 h-5 text-yellow-500" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-700" />
+              )}
+            </button>
+
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow dark:shadow-gray-700">
+              <User className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+              <span className="font-semibold text-gray-800 dark:text-gray-200">{user?.username}</span>
             </div>
+
+            
+            <button
+              onClick={() => { window.history.pushState({ view: 'games' }, '', '#games'); setCurrentView('games'); setSelectedModule(null); }}
+              className="px-3 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded-lg text-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors">
+              {language === 'en' ? 'Games' : 'खेल'}
+            </button>
+
             {user?.role === 'admin' && (
               <button
                 onClick={() => setShowAdmin(true)}
-                className="px-3 py-2 bg-gray-700 text-white rounded-lg text-sm hover:bg-gray-800"
-              >
+                className="px-3 py-2 bg-gray-700 dark:bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-800 dark:hover:bg-gray-500 transition-colors">
                 Admin Panel
               </button>
             )}
@@ -732,25 +789,33 @@ const App = () => {
                 setUser(null);
                 setShowLogin(true);
               }}
-              className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
-            >
+              className="px-3 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg text-sm hover:bg-red-700 dark:hover:bg-red-600 transition-colors">
               Logout
             </button>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg p-4 mb-6">
+        {/* Banner Slider */}
+        <div className="mb-6">
+          <BannerSlider 
+            slides={[]} // Empty array will use default placeholders
+            autoplayInterval={5000}
+            showControls={true}
+          />
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-700 p-4 mb-6 transition-colors">
           <div className="flex items-center justify-center gap-3">
-            <Globe className="w-5 h-5 text-indigo-600" />
-            <span className="font-semibold text-gray-700">Language:</span>
+            <Globe className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <span className="font-semibold text-gray-700 dark:text-gray-300">Language:</span>
             {Object.entries(LANGUAGES).map(([code, lang]) => (
               <button
                 key={code}
                 onClick={() => setLanguage(code)}
                 className={`px-4 py-2 rounded-lg transition-all ${
                   language === code
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-indigo-600 dark:bg-indigo-700 text-white'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 {lang.flag} {lang.name}
@@ -759,33 +824,33 @@ const App = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-700 p-6 mb-8 transition-colors">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <div className="flex items-center justify-center mb-2">
-                <Star className="w-6 h-6 text-yellow-500 mr-2" />
-                <span className="text-2xl font-bold text-gray-800">{userProgress.points}</span>
+                <Star className="w-6 h-6 text-yellow-500 dark:text-yellow-400 mr-2" />
+                <span className="text-2xl font-bold text-gray-800 dark:text-gray-200">{userProgress.points}</span>
               </div>
-              <p className="text-sm text-gray-600">Points</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Points</p>
             </div>
             <div>
               <div className="flex items-center justify-center mb-2">
-                <Award className="w-6 h-6 text-purple-500 mr-2" />
-                <span className="text-2xl font-bold text-gray-800">{userProgress.badges.length}</span>
+                <Award className="w-6 h-6 text-purple-500 dark:text-purple-400 mr-2" />
+                <span className="text-2xl font-bold text-gray-800 dark:text-gray-200">{userProgress.badges.length}</span>
               </div>
-              <p className="text-sm text-gray-600">Badges</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Badges</p>
             </div>
             <div>
               <div className="flex items-center justify-center mb-2">
-                <BookOpen className="w-6 h-6 text-blue-500 mr-2" />
-                <span className="text-2xl font-bold text-gray-800">{userProgress.myRights.length}</span>
+                <BookOpen className="w-6 h-6 text-blue-500 dark:text-blue-400 mr-2" />
+                <span className="text-2xl font-bold text-gray-800 dark:text-gray-200">{userProgress.myRights.length}</span>
               </div>
-              <p className="text-sm text-gray-600">Rights Learned</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Rights Learned</p>
             </div>
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold text-indigo-900 mb-4">Choose a Module</h2>
+        <h2 className="text-2xl font-bold text-indigo-900 dark:text-indigo-300 mb-4">Choose a Module</h2>
         <div className="grid gap-4">
           {database.modules.map(module => {
             const isCompleted = userProgress.completedModules[module.id];
@@ -796,26 +861,26 @@ const App = () => {
               <div
                 key={module.id}
                 onClick={() => handleModuleSelect(module.id)}
-                className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all hover:scale-105"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-700 p-6 cursor-pointer hover:shadow-xl dark:hover:shadow-gray-600 transition-all hover:scale-105"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="text-4xl">{module.icon}</div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 flex items-center">
                         {translation.title}
-                        {isCompleted && <CheckCircle className="w-5 h-5 text-green-500 ml-2" />}
+                        {isCompleted && <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400 ml-2" />}
                       </h3>
-                      <p className="text-gray-600 text-sm">{translation.description}</p>
-                      <p className="text-indigo-600 text-xs mt-1">🏆 Earn: {translation.badge}</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">{translation.description}</p>
+                      <p className="text-indigo-600 dark:text-indigo-400 text-xs mt-1">🏆 Earn: {translation.badge}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-6 h-6 text-indigo-400" />
+                  <ChevronRight className="w-6 h-6 text-indigo-400 dark:text-indigo-500" />
                 </div>
                 
-                <div className="mt-4 bg-gray-200 rounded-full h-2">
+                <div className="mt-4 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                   <div
-                    className="bg-indigo-500 h-2 rounded-full transition-all"
+                    className="bg-indigo-500 dark:bg-indigo-600 h-2 rounded-full transition-all"
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
@@ -825,20 +890,23 @@ const App = () => {
         </div>
         
         {userProgress.myRights.length > 0 && (
-          <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-              <BookOpen className="w-6 h-6 mr-2 text-indigo-600" />
+          <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-700 p-6 transition-colors">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+              <BookOpen className="w-6 h-6 mr-2 text-indigo-600 dark:text-indigo-400" />
               My Rights Handbook
             </h3>
             <div className="flex flex-wrap gap-2">
               {userProgress.myRights.map((right, idx) => (
-                <span key={idx} className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">
+                <span key={idx} className="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-full text-sm">
                   {right}
                 </span>
               ))}
             </div>
           </div>
         )}
+        
+        {/* Footer */}
+        <Footer language={language} darkMode={darkMode} />
       </div>
     </div>
   );
@@ -1040,6 +1108,37 @@ const App = () => {
               {currentView === 'home' && <HomeView />}
               {currentView === 'learn' && <LearnView />}
               {currentView === 'complete' && <CompleteView />}
+              
+              {/* Games view */}
+              {currentView === 'games' && (
+                <div className="min-h-screen flex flex-col">
+                  <div className="max-w-4xl mx-auto p-6 flex-1">
+                    <GamesPanel
+                      language={language}
+                      onProgress={(result) => {
+                        // update progress state defensively
+                        setUserProgress(prev => {
+                          const newBadges = new Set([...(prev.badges || []), ...(result.badge ? [result.badge] : [])].filter(Boolean));
+                          const newPoints = (prev.points || 0) + (result.points || 0);
+                          const updated = { ...prev, points: newPoints, badges: Array.from(newBadges) };
+                          // Save to server if user logged in
+                          saveUserProgress({
+                            points: updated.points,
+                            badges: updated.badges,
+                            completed_modules: updated.completedModules,
+                            learned_concepts: updated.myRights
+                          });
+                          return updated;
+                        });
+                      }}
+                    setCurrentView={setCurrentView}
+                    darkMode={darkMode}
+                    setDarkMode={setDarkMode}
+                  />
+                  </div>
+                  <Footer language={language} darkMode={darkMode} />
+                </div>
+              )}
             </>
           )}
         </>

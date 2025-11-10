@@ -1,234 +1,438 @@
+// seed.js — Part III only (Articles 12–35)
+// Compatible with existing routes/schema (modules, module_translations, scenarios, scenario_translations, scenario_options)
 const pool = require('./db');
 
-const seedData = async () => {
+const PART_III_MODULES = [
+  { id: 'general-definition', icon: '📘',
+    translations: {
+      en: { title: 'Definitions & Law (Art. 12–13)', description: 'Who is the “State”; laws inconsistent with Part III', badge: 'Constitution Reader' },
+      hi: { title: 'परिभाषाएँ और विधि (अनु. 12–13)', description: '“राज्य” कौन; भाग III के विरुद्ध कानून', badge: 'Constitution Reader' }
+    }
+  },
+  { id: 'equality', icon: '⚖️',
+    translations: {
+      en: { title: 'Right to Equality (Art. 14–18)', description: 'Equality before law; no discrimination; abolition of untouchability & titles', badge: 'Equality Advocate' },
+      hi: { title: 'समानता का अधिकार (अनु. 14–18)', description: 'कानून के समक्ष समानता; भेदभाव निषेध; अस्पृश्यता व उपाधियाँ समाप्त', badge: 'Equality Advocate' }
+    }
+  },
+  { id: 'freedom', icon: '🕊️',
+    translations: {
+      en: { title: 'Right to Freedom (Art. 19–22)', description: 'Freedoms of Art.19; protection in criminal cases; life & personal liberty; safeguards on arrest', badge: 'Freedom Defender' },
+      hi: { title: 'स्वतंत्रता का अधिकार (अनु. 19–22)', description: 'अनु.19 की स्वतंत्रताएँ; आपराधिक संरक्षण; जीवन/स्वतंत्रता; गिरफ्तारी पर सुरक्षा', badge: 'Freedom Defender' }
+    }
+  },
+  { id: 'exploitation', icon: '🛡️',
+    translations: {
+      en: { title: 'Right Against Exploitation (Art. 23–24)', description: 'Prohibition of trafficking, forced labour, hazardous child labour', badge: 'Protector' },
+      hi: { title: 'शोषण के विरुद्ध अधिकार (अनु. 23–24)', description: 'मानव तस्करी, जबरन श्रम, खतरनाक बाल श्रम निषेध', badge: 'Protector' }
+    }
+  },
+  { id: 'religion', icon: '🕉️',
+    translations: {
+      en: { title: 'Freedom of Religion (Art. 25–28)', description: 'Freedom of conscience & religion; manage religious affairs; no compulsory instruction in certain institutions', badge: 'Religious Rights Ally' },
+      hi: { title: 'धार्मिक स्वतंत्रता (अनु. 25–28)', description: 'अंतरात्मा व धर्म की स्वतंत्रता; धार्मिक प्रबंधन; कुछ संस्थानों में अनिवार्य धार्मिक शिक्षा नहीं', badge: 'Religious Rights Ally' }
+    }
+  },
+  { id: 'cultural-educational', icon: '🎨',
+    translations: {
+      en: { title: 'Cultural & Educational Rights (Art. 29–30)', description: 'Conserve language/script/culture; minorities’ institutions', badge: 'Culture Keeper' },
+      hi: { title: 'सांस्कृतिक व शैक्षिक अधिकार (अनु. 29–30)', description: 'भाषा/लिपि/संस्कृति का संरक्षण; अल्पसंख्यक संस्थान', badge: 'Culture Keeper' }
+    }
+  },
+  { id: 'constitutional-remedies', icon: '📜',
+    translations: {
+      en: { title: 'Constitutional Remedies & Limits (Art. 32, 33–35)', description: 'Move Supreme Court for FR enforcement; special limits/powers', badge: 'Writ Champion' },
+      hi: { title: 'संवैधानिक उपचार व सीमाएँ (अनु. 32, 33–35)', description: 'मौलिक अधिकार प्रवर्तन हेतु सर्वोच्च न्यायालय; विशेष सीमाएँ/शक्तियाँ', badge: 'Writ Champion' }
+    }
+  }
+];
+
+// Minimal, clean scenarios for each learning area (id, correct_answer in {a,b,c}, options per language)
+const SCENARIOS = [
+  // === GENERAL-DEFINITION (Art. 12–13)
+  {
+    id: 'general_state_1', module_id: 'general-definition', correct_answer: 'b', order_index: 1,
+    translations: {
+      en: {
+        concept: 'Who is “the State”? (Art. 12)',
+        explanation: 'Article 12 defines “the State” to include Government, Parliament/Legislature, and authorities under the control of Government.',
+        story: 'A student alleges her Fundamental Right is violated by a government department. Does Part III apply?',
+        options: [
+          { id: 'a', text: 'No, Part III applies only to private bodies' },
+          { id: 'b', text: 'Yes, Government departments are “State” under Article 12' },
+          { id: 'c', text: 'Only if the President approves' }
+        ],
+        feedbackCorrect: 'Correct — Government departments are “State” (Art. 12).',
+        feedbackIncorrect: 'Not quite — check Article 12’s definition of “State”.'
+      },
+      hi: {
+        concept: '“राज्य” कौन है? (अनु. 12)',
+        explanation: 'अनु.12 में “राज्य” में सरकार, संसद/विधानमंडल व सरकारी नियंत्रणाधीन प्राधिकरण शामिल हैं।',
+        story: 'एक छात्रा कहती है कि उसका मौलिक अधिकार एक सरकारी विभाग ने तोड़ा। क्या भाग III लागू होगा?',
+        options: [
+          { id: 'a', text: 'नहीं, भाग III केवल निजी संस्थाओं पर लागू है' },
+          { id: 'b', text: 'हाँ, सरकारी विभाग अनु.12 के तहत “राज्य” हैं' },
+          { id: 'c', text: 'केवल राष्ट्रपति की स्वीकृति हो तो' }
+        ],
+        feedbackCorrect: 'सही — सरकारी विभाग “राज्य” हैं (अनु.12)।',
+        feedbackIncorrect: 'पूरा सही नहीं — अनु.12 की परिभाषा देखें।'
+      }
+    }
+  },
+
+  // === EQUALITY (Art. 14–18)
+  {
+    id: 'equality_discrimination_1', module_id: 'equality', correct_answer: 'b', order_index: 1,
+    translations: {
+      en: {
+        concept: 'Prohibition of discrimination (Art. 15)',
+        explanation: 'State cannot discriminate on religion, race, caste, sex, place of birth.',
+        story: 'A public college denies admission solely due to caste.',
+        options: [
+          { id: 'a', text: 'Article 21 (life & liberty)' },
+          { id: 'b', text: 'Article 15 (prohibition of discrimination)' },
+          { id: 'c', text: 'Article 27 (religious taxes)' }
+        ],
+        feedbackCorrect: 'Correct — Art. 15 forbids such discrimination.',
+        feedbackIncorrect: 'Review Art. 15: specified grounds are prohibited.'
+      },
+      hi: {
+        concept: 'भेदभाव का निषेध (अनु. 15)',
+        explanation: 'राज्य धर्म, जाति, लिंग, जन्मस्थान आदि के आधार पर भेदभाव नहीं कर सकता।',
+        story: 'एक सार्वजनिक कॉलेज जाति के आधार पर प्रवेश से इन्कार करता है।',
+        options: [
+          { id: 'a', text: 'अनु.21 (जीवन व स्वतंत्रता)' },
+          { id: 'b', text: 'अनु.15 (भेदभाव निषेध)' },
+          { id: 'c', text: 'अनु.27 (धार्मिक कर)' }
+        ],
+        feedbackCorrect: 'सही — अनु.15 ऐसा भेदभाव निषिद्ध करता है।',
+        feedbackIncorrect: 'अनु.15 देखें — निर्दिष्ट आधार निषिद्ध हैं।'
+      }
+    }
+  },
+  {
+    id: 'equality_untouchability_1', module_id: 'equality', correct_answer: 'c', order_index: 2,
+    translations: {
+      en: {
+        concept: 'Abolition of untouchability (Art. 17)',
+        explanation: 'Untouchability is abolished and its practice is an offence.',
+        story: 'A shop refuses entry citing “traditional practice” against a community.',
+        options: [
+          { id: 'a', text: 'Article 16 (public employment)' },
+          { id: 'b', text: 'Article 18 (titles)' },
+          { id: 'c', text: 'Article 17 (abolition of untouchability)' }
+        ],
+        feedbackCorrect: 'Correct — Art. 17 abolishes untouchability.',
+        feedbackIncorrect: 'Look at Art. 17 for this protection.'
+      },
+      hi: {
+        concept: 'अस्पृश्यता का उन्मूलन (अनु. 17)',
+        explanation: 'अस्पृश्यता समाप्त है और उसका अभ्यास अपराध है।',
+        story: 'एक दुकान “परंपरा” के नाम पर एक समुदाय के लोगों को प्रवेश नहीं देती।',
+        options: [
+          { id: 'a', text: 'अनु.16 (सार्वजनिक रोजगार)' },
+          { id: 'b', text: 'अनु.18 (उपाधियाँ)' },
+          { id: 'c', text: 'अनु.17 (अस्पृश्यता उन्मूलन)' }
+        ],
+        feedbackCorrect: 'सही — अनु.17 अस्पृश्यता को समाप्त करता है।',
+        feedbackIncorrect: 'इस सुरक्षा के लिए अनु.17 देखें।'
+      }
+    }
+  },
+
+  // === FREEDOM (Art. 19–22)
+  {
+    id: 'freedom_assembly_1', module_id: 'freedom', correct_answer: 'b', order_index: 1,
+    translations: {
+      en: {
+        concept: 'Freedom of assembly (Art. 19(1)(b))',
+        explanation: 'Peaceful assembly is protected; restrictions must be reasonable and lawful.',
+        story: 'A peaceful rally is blanket-banned without reason.',
+        options: [
+          { id: 'a', text: 'No Fundamental Right involved' },
+          { id: 'b', text: 'Article 19(1)(b)' },
+          { id: 'c', text: 'Article 24' }
+        ],
+        feedbackCorrect: 'Correct — Art. 19(1)(b) protects peaceful assembly.',
+        feedbackIncorrect: 'Think Art. 19 freedoms and reasonable restrictions.'
+      },
+      hi: {
+        concept: 'सभा की स्वतंत्रता (अनु. 19(1)(b))',
+        explanation: 'शांतिपूर्ण सभा संरक्षित है; प्रतिबंध विवेकपूर्ण व वैध होने चाहिए।',
+        story: 'एक शांतिपूर्ण रैली पर बिना कारण समग्र प्रतिबंध लग गया।',
+        options: [
+          { id: 'a', text: 'कोई मौलिक अधिकार नहीं' },
+          { id: 'b', text: 'अनु.19(1)(b)' },
+          { id: 'c', text: 'अनु.24' }
+        ],
+        feedbackCorrect: 'सही — अनु.19(1)(b) शांतिपूर्ण सभा की रक्षा करता है।',
+        feedbackIncorrect: 'अनु.19 की स्वतंत्रताओं पर विचार करें।'
+      }
+    }
+  },
+  {
+    id: 'freedom_arrest_1', module_id: 'freedom', correct_answer: 'a', order_index: 2,
+    translations: {
+      en: {
+        concept: 'Safeguards on arrest (Art. 22)',
+        explanation: 'Prompt production before magistrate and right to know grounds of arrest.',
+        story: 'A person is detained overnight without being told why or produced before a magistrate.',
+        options: [
+          { id: 'a', text: 'Article 22 safeguards' },
+          { id: 'b', text: 'Article 14 equality' },
+          { id: 'c', text: 'Article 25 religion' }
+        ],
+        feedbackCorrect: 'Correct — Art. 22 requires prompt production and grounds of arrest.',
+        feedbackIncorrect: 'Check Art. 22 — arrest safeguards.'
+      },
+      hi: {
+        concept: 'गिरफ्तारी पर सुरक्षा (अनु. 22)',
+        explanation: 'शीघ्र मजिस्ट्रेट के सामने पेशी और कारण बताने का अधिकार।',
+        story: 'बिना कारण बताए रात भर हिरासत, मजिस्ट्रेट के सामने पेश नहीं किया गया।',
+        options: [
+          { id: 'a', text: 'अनु.22 की सुरक्षा' },
+          { id: 'b', text: 'अनु.14 समानता' },
+          { id: 'c', text: 'अनु.25 धर्म' }
+        ],
+        feedbackCorrect: 'सही — अनु.22 शीघ्र पेशी व कारण बताने की मांग करता है।',
+        feedbackIncorrect: 'अनु.22 देखें — गिरफ्तारी सुरक्षा।'
+      }
+    }
+  },
+
+  // === EXPLOITATION (Art. 23–24)
+  {
+    id: 'exploitation_forcedlabour_1', module_id: 'exploitation', correct_answer: 'a', order_index: 1,
+    translations: {
+      en: {
+        concept: 'Forced labour & trafficking prohibited (Art. 23)',
+        explanation: 'Traffic in human beings, begar and similar forms are prohibited.',
+        story: 'Workers are compelled to work without pay under threat.',
+        options: [
+          { id: 'a', text: 'Article 23 prohibition' },
+          { id: 'b', text: 'Article 30 minorities’ institutions' },
+          { id: 'c', text: 'Article 18 titles' }
+        ],
+        feedbackCorrect: 'Correct — Art. 23 forbids forced labour & trafficking.',
+        feedbackIncorrect: 'See Art. 23 for this prohibition.'
+      },
+      hi: {
+        concept: 'जबरन श्रम व तस्करी निषेध (अनु. 23)',
+        explanation: 'मानव तस्करी, बेगार व समान रूप निषिद्ध हैं।',
+        story: 'मजदूरों को धमकाकर बिना वेतन काम करवाया जाता है।',
+        options: [
+          { id: 'a', text: 'अनु.23 का निषेध' },
+          { id: 'b', text: 'अनु.30 अल्पसंख्यक संस्थान' },
+          { id: 'c', text: 'अनु.18 उपाधियाँ' }
+        ],
+        feedbackCorrect: 'सही — अनु.23 जबरन श्रम/तस्करी निषिद्ध करता है।',
+        feedbackIncorrect: 'इस निषेध के लिए अनु.23 देखें।'
+      }
+    }
+  },
+  {
+    id: 'exploitation_childlabour_1', module_id: 'exploitation', correct_answer: 'a', order_index: 2,
+    translations: {
+      en: {
+        concept: 'Hazardous child labour prohibited (Art. 24)',
+        explanation: 'Employment of children in hazardous work is prohibited.',
+        story: 'Children are found doing dangerous tasks in a factory.',
+        options: [
+          { id: 'a', text: 'Article 24 prohibition' },
+          { id: 'b', text: 'Article 16 public employment' },
+          { id: 'c', text: 'Article 27 religious taxes' }
+        ],
+        feedbackCorrect: 'Correct — Art. 24 bars hazardous child labour.',
+        feedbackIncorrect: 'Article 24 targets hazardous child labour.'
+      },
+      hi: {
+        concept: 'खतरनाक बाल श्रम निषिद्ध (अनु. 24)',
+        explanation: 'खतरनाक कार्यों में बच्चों का रोजगार वर्जित है।',
+        story: 'कारखाने में बच्चे खतरनाक काम करते मिले।',
+        options: [
+          { id: 'a', text: 'अनु.24 का निषेध' },
+          { id: 'b', text: 'अनु.16 सार्वजनिक रोजगार' },
+          { id: 'c', text: 'अनु.27 धार्मिक कर' }
+        ],
+        feedbackCorrect: 'सही — अनु.24 खतरनाक बाल श्रम रोकता है।',
+        feedbackIncorrect: 'अनु.24 इसी पर केंद्रित है।'
+      }
+    }
+  },
+
+  // === RELIGION (Art. 25–28)
+  {
+    id: 'religion_instruction_1', module_id: 'religion', correct_answer: 'c', order_index: 1,
+    translations: {
+      en: {
+        concept: 'No compulsory religious instruction (Art. 28)',
+        explanation: 'Certain institutions cannot impart compulsory religious instruction.',
+        story: 'A state-aided school makes one faith’s instruction compulsory.',
+        options: [
+          { id: 'a', text: 'Article 14 equality' },
+          { id: 'b', text: 'Article 19 speech' },
+          { id: 'c', text: 'Article 28 restriction on religious instruction' }
+        ],
+        feedbackCorrect: 'Correct — Art. 28 guards against compulsory religious instruction.',
+        feedbackIncorrect: 'Consider Arts. 25–28; Art. 28 is specific here.'
+      },
+      hi: {
+        concept: 'अनिवार्य धार्मिक शिक्षा नहीं (अनु. 28)',
+        explanation: 'कुछ संस्थानों में अनिवार्य धार्मिक शिक्षा वर्जित है।',
+        story: 'एक राज्य-सहायता प्राप्त स्कूल एक धर्म की शिक्षा अनिवार्य करता है।',
+        options: [
+          { id: 'a', text: 'अनु.14 समानता' },
+          { id: 'b', text: 'अनु.19 भाषण' },
+          { id: 'c', text: 'अनु.28 धार्मिक शिक्षा पर रोक' }
+        ],
+        feedbackCorrect: 'सही — अनु.28 अनिवार्य धार्मिक शिक्षा से बचाता है।',
+        feedbackIncorrect: 'अनु.25–28 देखें; यहाँ अनु.28 लागू होता है।'
+      }
+    }
+  },
+
+  // === CULTURAL & EDUCATIONAL (Art. 29–30)
+  {
+    id: 'cultural_minorityinst_1', module_id: 'cultural-educational', correct_answer: 'b', order_index: 1,
+    translations: {
+      en: {
+        concept: 'Minorities’ educational institutions (Art. 30)',
+        explanation: 'Minorities have the right to establish and administer educational institutions.',
+        story: 'A minority community seeks to run its own college.',
+        options: [
+          { id: 'a', text: 'Article 23 prohibition on trafficking' },
+          { id: 'b', text: 'Article 30 minorities’ institutions' },
+          { id: 'c', text: 'Article 17 abolition of untouchability' }
+        ],
+        feedbackCorrect: 'Correct — Art. 30 enables minority institutions.',
+        feedbackIncorrect: 'This is protected under Art. 30.'
+      },
+      hi: {
+        concept: 'अल्पसंख्यक शैक्षिक संस्थान (अनु. 30)',
+        explanation: 'अल्पसंख्यकों को शैक्षिक संस्थान स्थापित/प्रबंधित करने का अधिकार।',
+        story: 'एक अल्पसंख्यक समुदाय अपना कॉलेज चलाना चाहता है।',
+        options: [
+          { id: 'a', text: 'अनु.23 मानव तस्करी निषेध' },
+          { id: 'b', text: 'अनु.30 अल्पसंख्यक संस्थान' },
+          { id: 'c', text: 'अनु.17 अस्पृश्यता उन्मूलन' }
+        ],
+        feedbackCorrect: 'सही — अनु.30 अल्पसंख्यक संस्थानों को सक्षम करता है।',
+        feedbackIncorrect: 'यह अधिकार अनु.30 में सुरक्षित है।'
+      }
+    }
+  },
+
+  // === REMEDIES & LIMITS (Art. 32, 33–35)
+  {
+    id: 'remedies_writ_1', module_id: 'constitutional-remedies', correct_answer: 'a', order_index: 1,
+    translations: {
+      en: {
+        concept: 'Article 32 and writs',
+        explanation: 'Move Supreme Court for FR enforcement; correct writ depends on violation.',
+        story: 'A citizen is illegally detained without lawful order. Which writ applies?',
+        options: [
+          { id: 'a', text: 'Habeas Corpus (unlawful detention)' },
+          { id: 'b', text: 'Mandamus (public duty performance)' },
+          { id: 'c', text: 'Quo Warranto (question authority to hold office)' }
+        ],
+        feedbackCorrect: 'Correct — Habeas Corpus addresses unlawful detention (Art. 32).',
+        feedbackIncorrect: 'Consider which writ targets unlawful detention.'
+      },
+      hi: {
+        concept: 'अनु. 32 व रिट्स',
+        explanation: 'मौलिक अधिकार प्रवर्तन हेतु सर्वोच्च न्यायालय; रिट उल्लंघन पर निर्भर।',
+        story: 'किसी नागरिक को बिना वैध आदेश अवैध रूप से हिरासत में रखा गया है। कौन सा रिट उचित है?',
+        options: [
+          { id: 'a', text: 'हैबियस कॉर्पस (अवैध हिरासत)' },
+          { id: 'b', text: 'मंडामस (सार्वजनिक दायित्व पूरा कराना)' },
+          { id: 'c', text: 'क्वो वारंटो (पद धारण की वैधता पर प्रश्न)' }
+        ],
+        feedbackCorrect: 'सही — हैबियस कॉर्पस अवैध हिरासत के लिए (अनु. 32)।',
+        feedbackIncorrect: 'सोचें — अवैध हिरासत के लिए कौन सा रिट है।'
+      }
+    }
+  }
+];
+
+async function run() {
   const client = await pool.connect();
-  
   try {
-    console.log('🌱 Starting database seeding...');
-    
+    console.log('🌱 Starting database seeding (Part III only)…');
     await client.query('BEGIN');
 
-    // 1. Insert modules
+    // --- Clean out old fake modules (if present) in FK-safe order ---
+    // Remove scenario options/translations for scenarios that belong to consumer/tenant
     await client.query(`
-      INSERT INTO modules (id, icon) VALUES 
-      ('consumer', '🛒'),
-      ('tenant', '🏠')
-      ON CONFLICT (id) DO NOTHING
+      DELETE FROM scenario_options
+      WHERE scenario_id IN (SELECT id FROM scenarios WHERE module_id IN ('consumer','tenant'));
     `);
-    console.log('✅ Modules inserted');
+    await client.query(`
+      DELETE FROM scenario_translations
+      WHERE scenario_id IN (SELECT id FROM scenarios WHERE module_id IN ('consumer','tenant'));
+    `);
+    await client.query(`DELETE FROM scenarios WHERE module_id IN ('consumer','tenant');`);
+    await client.query(`DELETE FROM module_translations WHERE module_id IN ('consumer','tenant');`);
+    await client.query(`DELETE FROM modules WHERE id IN ('consumer','tenant');`);
+    console.log('🧹 Removed legacy consumer/tenant content (if any).'); // old content your previous seed added :contentReference[oaicite:3]{index=3}
 
-    // 2. Insert module translations
-    await client.query(`
-      INSERT INTO module_translations (module_id, language_code, title, description, badge_name) VALUES 
-      ('consumer', 'en', 'Consumer Rights', 'Learn about your rights as a consumer', 'Smart Shopper'),
-      ('consumer', 'hi', 'उपभोक्ता अधिकार', 'उपभोक्ता के रूप में अपने अधिकारों के बारे में जानें', 'स्मार्ट खरीदार'),
-      ('consumer', 'ta', 'நுகர்வோர் உரிமைகள்', 'நுகர்வோராக உங்கள் உரிமைகளைப் பற்றி அறியவும்', 'புத்திசாலி வாங்குபவர்'),
-      ('tenant', 'en', 'Tenant Rights', 'Understand your rights as a tenant', 'Housing Hero'),
-      ('tenant', 'hi', 'किरायेदार अधिकार', 'किरायेदार के रूप में अपने अधिकारों को समझें', 'आवास नायक'),
-      ('tenant', 'ta', 'குத்தகைதாரர் உரிமைகள்', 'குத்தகைதாரராக உங்கள் உரிமைகளைப் புரிந்து கொள்ளுங்கள்', 'வீட்டு வீரர்')
-      ON CONFLICT DO NOTHING
-    `);
-    console.log('✅ Module translations inserted');
+    // --- Insert Part III modules ---
+    for (const m of PART_III_MODULES) {
+      await client.query(
+        `INSERT INTO modules (id, icon) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING`,
+        [m.id, m.icon]
+      );
+      for (const [lang, t] of Object.entries(m.translations)) {
+        await client.query(
+          `INSERT INTO module_translations (module_id, language_code, title, description, badge_name)
+           VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT DO NOTHING`,
+          [m.id, lang, t.title, t.description, t.badge]
+        );
+      }
+    }
+    console.log('✅ Inserted Part III modules & translations.');
 
-    // 3. Insert scenarios
-    await client.query(`
-      INSERT INTO scenarios (id, module_id, correct_answer, order_index) VALUES 
-      ('consumer_1', 'consumer', 'b', 1),
-      ('consumer_2', 'consumer', 'a', 2),
-      ('consumer_3', 'consumer', 'b', 3),
-      ('tenant_1', 'tenant', 'b', 1),
-      ('tenant_2', 'tenant', 'b', 2)
-      ON CONFLICT (id) DO NOTHING
-    `);
-    console.log('✅ Scenarios inserted');
+    // --- Insert scenarios + translations + options ---
+    for (const s of SCENARIOS) {
+      await client.query(
+        `INSERT INTO scenarios (id, module_id, correct_answer, order_index)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (id) DO NOTHING`,
+        [s.id, s.module_id, s.correct_answer, s.order_index]
+      );
 
-    // 4. Insert scenario translations - Consumer 1
-    await client.query(`
-      INSERT INTO scenario_translations (scenario_id, language_code, concept, explanation, story, feedback_correct, feedback_incorrect) VALUES 
-      ('consumer_1', 'en', 'Right to Safety', 
-       'Consumers have the right to be protected against products that are hazardous to life and property.',
-       'You just bought a brand-new pressure cooker. The first time you use it, the safety valve fails and it explodes, narrowly missing you. What is your primary right in this situation?',
-       'Correct! The ''Right to Safety'' protects you from products that are hazardous to life. You can file a complaint with the consumer forum.',
-       'Not quite. While this right is important, the primary right violated here is the ''Right to Safety'' - protecting you from hazardous products.'),
-      ('consumer_1', 'hi', 'सुरक्षा का अधिकार',
-       'उपभोक्ताओं को जीवन और संपत्ति के लिए खतरनाक उत्पादों से सुरक्षा का अधिकार है।',
-       'आपने एक नया प्रेशर कुकर खरीदा। पहली बार उपयोग करने पर, सेफ्टी वाल्व फेल हो जाता है और यह फट जाता है। इस स्थिति में आपका प्राथमिक अधिकार क्या है?',
-       'सही! ''सुरक्षा का अधिकार'' आपको खतरनाक उत्पादों से बचाता है।',
-       'बिल्कुल सही नहीं। यहाँ मुख्य अधिकार ''सुरक्षा का अधिकार'' है।'),
-      ('consumer_1', 'ta', 'பாதுகாப்பு உரிமை',
-       'வாழ்க்கை மற்றும் சொத்துக்கு ஆபத்தான தயாரிப்புகளுக்கு எதிராக நுகர்வோர் பாதுகாக்கப்பட உரிமை உண்டு.',
-       'நீங்கள் புதிய பிரஷர் குக்கர் வாங்கினீர்கள். முதல் முறை பயன்படுத்தும்போது, பாதுகாப்பு வால்வு தோல்வியடைந்து வெடிக்கிறது. இந்த சூழ்நிலையில் உங்கள் முதன்மை உரிமை என்ன?',
-       'சரி! ''பாதுகாப்பு உரிமை'' உங்களை ஆபத்தான தயாரிப்புகளிலிருந்து பாதுகாக்கிறது.',
-       'சரியல்ல. இங்கே முதன்மை உரிமை ''பாதுகாப்பு உரிமை''.')
-      ON CONFLICT DO NOTHING
-    `);
+      for (const [lang, t] of Object.entries(s.translations)) {
+        await client.query(
+          `INSERT INTO scenario_translations
+           (scenario_id, language_code, concept, explanation, story, feedback_correct, feedback_incorrect)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
+           ON CONFLICT DO NOTHING`,
+          [s.id, lang, t.concept, t.explanation, t.story, t.feedbackCorrect, t.feedbackIncorrect]
+        );
 
-    // 5. Insert scenario options - Consumer 1
-    await client.query(`
-      INSERT INTO scenario_options (scenario_id, option_id, language_code, option_text) VALUES 
-      ('consumer_1', 'a', 'en', 'Right to Choose'),
-      ('consumer_1', 'b', 'en', 'Right to Safety'),
-      ('consumer_1', 'c', 'en', 'Right to be Heard'),
-      ('consumer_1', 'a', 'hi', 'चुनने का अधिकार'),
-      ('consumer_1', 'b', 'hi', 'सुरक्षा का अधिकार'),
-      ('consumer_1', 'c', 'hi', 'सुने जाने का अधिकार'),
-      ('consumer_1', 'a', 'ta', 'தேர்வு செய்யும் உரிமை'),
-      ('consumer_1', 'b', 'ta', 'பாதுகாப்பு உரிமை'),
-      ('consumer_1', 'c', 'ta', 'கேட்கப்படும் உரிமை')
-      ON CONFLICT DO NOTHING
-    `);
-
-    // 6. Consumer 2 - Right to Information
-    await client.query(`
-      INSERT INTO scenario_translations (scenario_id, language_code, concept, explanation, story, feedback_correct, feedback_incorrect) VALUES 
-      ('consumer_2', 'en', 'Right to Information',
-       'Consumers have the right to be informed about the quality, quantity, potency, purity, standard and price of goods.',
-       'You buy a packaged food item, but there is no manufacturing date or ingredient list on it. Which consumer right has been violated?',
-       'Excellent! The ''Right to Information'' ensures you know what you''re buying. Missing labels violate this fundamental right.',
-       'Not exactly. The missing information violates your ''Right to Information'' - you must know what you''re purchasing.'),
-      ('consumer_2', 'hi', 'जानकारी का अधिकार',
-       'उपभोक्ताओं को सामान की गुणवत्ता, मात्रा, शक्ति, शुद्धता, मानक और कीमत के बारे में जानकारी का अधिकार है।',
-       'आप एक पैक किया हुआ खाद्य पदार्थ खरीदते हैं, लेकिन उस पर निर्माण तिथि या सामग्री सूची नहीं है। कौन सा उपभोक्ता अधिकार का उल्लंघन हुआ है?',
-       'बिल्कुल सही! ''जानकारी का अधिकार'' सुनिश्चित करता है कि आप जानते हैं कि आप क्या खरीद रहे हैं।',
-       'बिल्कुल सही नहीं। गायब जानकारी ''जानकारी के अधिकार'' का उल्लंघन करती है।'),
-      ('consumer_2', 'ta', 'தகவல் உரிமை',
-       'பொருட்களின் தரம், அளவு, ஆற்றல், தூய்மை, தரநிலை மற்றும் விலை பற்றி அறிய நுகர்வோருக்கு உரிமை உண்டு.',
-       'நீங்கள் ஒரு பேக் செய்யப்பட்ட உணவுப் பொருளை வாங்குகிறீர்கள், ஆனால் அதில் உற்பத்தி தேதி அல்லது பொருட்கள் பட்டியல் இல்லை. எந்த நுகர்வோர் உரிமை மீறப்பட்டுள்ளது?',
-       'சிறப்பு! ''தகவல் உரிமை'' நீங்கள் வாங்குவது என்னவென்று உறுதி செய்கிறது.',
-       'சரியல்ல. தவறிய தகவல் ''தகவல் உரிமையை'' மீறுகிறது.')
-      ON CONFLICT DO NOTHING
-    `);
-
-    await client.query(`
-      INSERT INTO scenario_options (scenario_id, option_id, language_code, option_text) VALUES 
-      ('consumer_2', 'a', 'en', 'Right to Information'),
-      ('consumer_2', 'b', 'en', 'Right to Choose'),
-      ('consumer_2', 'c', 'en', 'Right to Safety'),
-      ('consumer_2', 'a', 'hi', 'जानकारी का अधिकार'),
-      ('consumer_2', 'b', 'hi', 'चुनने का अधिकार'),
-      ('consumer_2', 'c', 'hi', 'सुरक्षा का अधिकार'),
-      ('consumer_2', 'a', 'ta', 'தகவல் உரிமை'),
-      ('consumer_2', 'b', 'ta', 'தேர்வு உரிமை'),
-      ('consumer_2', 'c', 'ta', 'பாதுகாப்பு உரிமை')
-      ON CONFLICT DO NOTHING
-    `);
-
-    // 7. Consumer 3 - Right to Redressal
-    await client.query(`
-      INSERT INTO scenario_translations (scenario_id, language_code, concept, explanation, story, feedback_correct, feedback_incorrect) VALUES 
-      ('consumer_3', 'en', 'Right to Redressal',
-       'Consumers have the right to seek redressal against unfair trade practices or exploitation.',
-       'A shop refuses to replace a defective mobile phone you bought last week, even though it came with a 1-year warranty. What right helps you here?',
-       'Perfect! The ''Right to Redressal'' allows you to seek compensation and replacement through consumer forums.',
-       'Close, but the ''Right to Redressal'' specifically covers seeking compensation and resolution for such issues.'),
-      ('consumer_3', 'hi', 'निवारण का अधिकार',
-       'उपभोक्ताओं को अनुचित व्यापार प्रथाओं या शोषण के खिलाफ निवारण मांगने का अधिकार है।',
-       'एक दुकान आपके द्वारा पिछले सप्ताह खरीदे गए दोषपूर्ण मोबाइल फोन को बदलने से इनकार करती है। यहाँ कौन सा अधिकार आपकी मदद करता है?',
-       'बिल्कुल सही! ''निवारण का अधिकार'' आपको उपभोक्ता फोरम के माध्यम से मुआवजा मांगने की अनुमति देता है।',
-       'करीब है, लेकिन ''निवारण का अधिकार'' विशेष रूप से ऐसे मुद्दों के लिए मुआवजा मांगने को कवर करता है।'),
-      ('consumer_3', 'ta', 'தீர்வு உரிமை',
-       'நியாயமற்ற வர்த்தக நடைமுறைகள் அல்லது சுரண்டலுக்கு எதிராக நுகர்வோர் தீர்வு கோர உரிமை உண்டு.',
-       'கடந்த வாரம் நீங்கள் வாங்கிய குறைபாடுள்ள மொபைல் போனை ஒரு கடை மாற்ற மறுக்கிறது. இங்கே எந்த உரிமை உங்களுக்கு உதவுகிறது?',
-       'சரியானது! ''தீர்வு உரிமை'' நுகர்வோர் மன்றங்கள் மூலம் இழப்பீடு கோர அனுமதிக்கிறது.',
-       'நெருக்கமாக உள்ளது, ஆனால் ''தீர்வு உரிமை'' குறிப்பாக இதுபோன்ற சிக்கல்களுக்கு இழப்பீடு கோருவதை உள்ளடக்குகிறது.')
-      ON CONFLICT DO NOTHING
-    `);
-
-    await client.query(`
-      INSERT INTO scenario_options (scenario_id, option_id, language_code, option_text) VALUES 
-      ('consumer_3', 'a', 'en', 'Right to be Heard'),
-      ('consumer_3', 'b', 'en', 'Right to Redressal'),
-      ('consumer_3', 'c', 'en', 'Right to Consumer Education'),
-      ('consumer_3', 'a', 'hi', 'सुने जाने का अधिकार'),
-      ('consumer_3', 'b', 'hi', 'निवारण का अधिकार'),
-      ('consumer_3', 'c', 'hi', 'उपभोक्ता शिक्षा का अधिकार'),
-      ('consumer_3', 'a', 'ta', 'கேட்கப்படும் உரிமை'),
-      ('consumer_3', 'b', 'ta', 'தீர்வு உரிமை'),
-      ('consumer_3', 'c', 'ta', 'நுகர்வோர் கல்வி உரிமை')
-      ON CONFLICT DO NOTHING
-    `);
-
-    // 8. Tenant 1 - Notice Period
-    await client.query(`
-      INSERT INTO scenario_translations (scenario_id, language_code, concept, explanation, story, feedback_correct, feedback_incorrect) VALUES 
-      ('tenant_1', 'en', 'Notice Period',
-       'Landlords must provide proper notice before asking tenants to vacate, typically 1-3 months depending on the agreement.',
-       'Your landlord suddenly asks you to vacate the property within 1 week without any prior notice. Is this legal?',
-       'Correct! Landlords must provide proper notice (usually 1-3 months) unless the agreement states otherwise or rent is severely overdue.',
-       'Not correct. Landlords must provide adequate notice period before asking you to vacate, protecting tenants from sudden eviction.'),
-      ('tenant_1', 'hi', 'नोटिस अवधि',
-       'मकान मालिकों को किरायेदारों से खाली करने के लिए कहने से पहले उचित नोटिस देना चाहिए।',
-       'आपका मकान मालक अचानक आपसे बिना किसी पूर्व सूचना के 1 सप्ताह के भीतर संपत्ति खाली करने के लिए कहता है। क्या यह कानूनी है?',
-       'सही! मकान मालकों को उचित नोटिस देना चाहिए।',
-       'सही नहीं। मकान मालकों को पर्याप्त नोटिस अवधि प्रदान करनी चाहिए।'),
-      ('tenant_1', 'ta', 'அறிவிப்பு காலம்',
-       'வீட்டு உரிமையாளர்கள் சரியான அறிவிப்பு அளிக்க வேண்டும்.',
-       'உங்கள் வீட்டு உரிமையாளர் திடீரென்று 1 வாரத்திற்குள் சொத்தை காலி செய்யும்படி கேட்கிறார். இது சட்டப்பூர்வமா?',
-       'சரி! வீட்டு உரிமையாளர்கள் சரியான அறிவிப்பு அளிக்க வேண்டும்.',
-       'சரியல்ல. வீட்டு உரிமையாளர்கள் போதுமான அறிவிப்பு காலம் அளிக்க வேண்டும்.')
-      ON CONFLICT DO NOTHING
-    `);
-
-    await client.query(`
-      INSERT INTO scenario_options (scenario_id, option_id, language_code, option_text) VALUES 
-      ('tenant_1', 'a', 'en', 'Yes, landlords can do this anytime'),
-      ('tenant_1', 'b', 'en', 'No, proper notice period is required'),
-      ('tenant_1', 'c', 'en', 'Only if rent is unpaid'),
-      ('tenant_1', 'a', 'hi', 'हां, मकान मालक कभी भी ऐसा कर सकते हैं'),
-      ('tenant_1', 'b', 'hi', 'नहीं, उचित नोटिस अवधि आवश्यक है'),
-      ('tenant_1', 'c', 'hi', 'केवल तभी जब किराया अदा नहीं किया गया हो'),
-      ('tenant_1', 'a', 'ta', 'ஆம், வீட்டு உரிமையாளர்கள் எப்போது வேண்டுமானாலும் இதைச் செய்யலாம்'),
-      ('tenant_1', 'b', 'ta', 'இல்லை, சரியான அறிவிப்பு காலம் தேவை'),
-      ('tenant_1', 'c', 'ta', 'வாடகை செலுத்தப்படாவிட்டால் மட்டும்')
-      ON CONFLICT DO NOTHING
-    `);
-
-    // 9. Tenant 2 - Security Deposit
-    await client.query(`
-      INSERT INTO scenario_translations (scenario_id, language_code, concept, explanation, story, feedback_correct, feedback_incorrect) VALUES 
-      ('tenant_2', 'en', 'Security Deposit',
-       'Security deposits must be returned after deducting legitimate dues, typically within 1 month of vacating.',
-       'You vacated your rented apartment 2 months ago in good condition, but the landlord refuses to return your security deposit. What should you do?',
-       'Right! You can send a legal notice and approach small claims court if needed. Security deposits must be returned minus legitimate deductions.',
-       'Don''t give up! You have the legal right to get your deposit back. Send a legal notice and escalate if necessary.'),
-      ('tenant_2', 'hi', 'सुरक्षा जमा',
-       'वैध बकाया राशि काटने के बाद सुरक्षा जमा वापस की जानी चाहिए।',
-       'आपने 2 महीने पहले अपना किराये का अपार्टमेंट अच्छी स्थिति में खाली कर दिया, लेकिन मकान मालक आपकी सुरक्षा जमा राशि वापस करने से इनकार करता है। आपको क्या करना चाहिए?',
-       'सही! आप कानूनी नोटिस भेज सकते हैं।',
-       'हार मत मानो! आपको अपनी जमा राशि वापस पाने का कानूनी अधिकार है।'),
-      ('tenant_2', 'ta', 'பாதுகாப்பு வைப்பு',
-       'சட்டபூர்வமான நிலுவைகளை கழித்த பிறகு பாதுகாப்பு வைப்பு திரும்பப் பெறப்பட வேண்டும்.',
-       'நீங்கள் 2 மாதங்களுக்கு முன்பு உங்கள் வாடகை அபார்ட்மெண்டை நல்ல நிலையில் காலி செய்தீர்கள், ஆனால் வீட்டு உரிமையாளர் உங்கள் பாதுகாப்பு வைப்பை திருப்பித் தர மறுக்கிறார். நீங்கள் என்ன செய்ய வேண்டும்?',
-       'சரி! நீங்கள் சட்ட அறிவிப்பை அனுப்பலாம்.',
-       'கைவிடாதீர்கள்! உங்கள் வைப்புத்தொகையை திரும்பப் பெற உங்களுக்கு சட்டப்பூர்வ உரிமை உண்டு.')
-      ON CONFLICT DO NOTHING
-    `);
-
-    await client.query(`
-      INSERT INTO scenario_options (scenario_id, option_id, language_code, option_text) VALUES 
-      ('tenant_2', 'a', 'en', 'Accept the loss and move on'),
-      ('tenant_2', 'b', 'en', 'Send legal notice demanding return'),
-      ('tenant_2', 'c', 'en', 'Wait indefinitely'),
-      ('tenant_2', 'a', 'hi', 'नुकसान स्वीकार करें और आगे बढ़ें'),
-      ('tenant_2', 'b', 'hi', 'वापसी की मांग करते हुए कानूनी नोटिस भेजें'),
-      ('tenant_2', 'c', 'hi', 'अनिश्चित काल तक प्रतीक्षा करें'),
-      ('tenant_2', 'a', 'ta', 'இழப்பை ஏற்றுக்கொண்டு முன்னேறுங்கள்'),
-      ('tenant_2', 'b', 'ta', 'திருப்பி தரும்படி சட்ட அறிவிப்பு அனுப்புங்கள்'),
-      ('tenant_2', 'c', 'ta', 'காலவரையின்றி காத்திருங்கள்')
-      ON CONFLICT DO NOTHING
-    `);
+        // options array -> scenario_options rows
+        for (const opt of t.options) {
+          await client.query(
+            `INSERT INTO scenario_options (scenario_id, option_id, language_code, option_text)
+             VALUES ($1, $2, $3, $4)
+             ON CONFLICT DO NOTHING`,
+            [s.id, opt.id, lang, opt.text]
+          );
+        }
+      }
+    }
+    console.log('✅ Inserted scenarios, translations, and options.');
 
     await client.query('COMMIT');
-    console.log('✅ Database seeded successfully with all data!');
+    console.log('🎉 Seeding complete.');
     process.exit(0);
-    
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error('❌ Error seeding database:', err);
+    console.error('❌ Seeding failed:', err.message);
     process.exit(1);
   } finally {
     client.release();
   }
-};
+}
 
-seedData();
+run();
