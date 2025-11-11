@@ -134,22 +134,6 @@ SMTP_FROM="Legal Quest <no-reply@example.com>"
 - Basic input validation in auth routes
 - CORS enabled for frontend dev
 
-
-### Screenshots and Media
-- Home screen / dashboard
-  - [PLACEHOLDER – insert screenshot]
-- Writ Quest flow
-  - [PLACEHOLDER – insert screenshot]
-- Scenario Snap gameplay (timer + feedback)
-  - [PLACEHOLDER – insert screenshot]
-- Wheel of Rights and Snakes & Ladders
-  - [PLACEHOLDER – insert screenshot]
-- Auth: registration, email verification, login
-  - [PLACEHOLDER – insert screenshot]
-- Progress tracking screen
-  - [PLACEHOLDER – insert screenshot]
-
-
 ### Roadmap / Future Enhancements
 - Role-based content management UI for adding modules/scenarios
 - More languages and accessibility improvements
