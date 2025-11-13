@@ -1,7 +1,7 @@
 // frontend/src/utils/api.js
 // API utility functions for fetching modules, scenarios, and options
 
-const API_BASE = import.meta.env.VITE_API_URL;
+const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
 
 /**
  * Fetch all modules with translations
