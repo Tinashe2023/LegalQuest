@@ -43,7 +43,7 @@ const AuthModal = ({ mode, onClose, onSuccess }) => {
         ? { email: formData.email, password: formData.password }
         : formData;
 
-      const response = await fetch(`http://localhost:3000${endpoint}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -81,7 +81,7 @@ const AuthModal = ({ mode, onClose, onSuccess }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/forgot-password', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email })
@@ -102,7 +102,7 @@ const AuthModal = ({ mode, onClose, onSuccess }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/resend-verification', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/resend-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email })
@@ -256,7 +256,7 @@ const PasswordResetForm = ({ token, onSuccess }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/api/auth/reset-password/${token}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/reset-password/${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
@@ -352,10 +352,10 @@ const App = () => {
   });
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
-  const path = window.location.pathname;
+  const path = window.location.pathname; // This is fine, not an API URL
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/modules')
+    fetch(`${import.meta.env.VITE_API_URL}/api/modules`)
       .then(res => res.json())
       .then(data => {
         setDatabase({
@@ -373,7 +373,7 @@ const App = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('http://localhost:3000/api/auth/me', {
+      fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -400,7 +400,7 @@ const App = () => {
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
-      await fetch('http://localhost:3000/api/progress', {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/progress`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -417,7 +417,7 @@ const App = () => {
   useEffect(() => {
     // Make this useEffect ONLY handle email verification
     if (token && path.includes('/verify-email')) { 
-      fetch(`http://localhost:3000/api/auth/verify-email/${token}`)
+      fetch(`${import.meta.env.VITE_API_URL}/api/auth/verify-email/${token}`)
         .then(res => res.json())
         .then(data => {
           if (data.token) {
@@ -478,7 +478,7 @@ const App = () => {
 
 
   const fetchUserProgress = (token) => {
-    fetch('http://localhost:3000/api/progress', {
+ fetch(`${import.meta.env.VITE_API_URL}/api/progress`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -609,7 +609,7 @@ const App = () => {
     
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/modules', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/modules`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -624,7 +624,7 @@ const App = () => {
         }
     
         // Refresh modules from database
-        const modulesRes = await fetch('http://localhost:3000/api/modules');
+        const modulesRes = await fetch(`${import.meta.env.VITE_API_URL}/api/modules`);
         const modulesData = await modulesRes.json();
         setDatabase({
           modules: modulesData.modules,

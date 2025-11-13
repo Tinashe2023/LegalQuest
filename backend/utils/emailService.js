@@ -22,7 +22,8 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendVerificationEmail = async (email, username, verificationToken) => {
-  const verificationLink = `http://localhost:5173/verify-email?token=${verificationToken}`;
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const verificationLink = `${clientUrl}/verify-email?token=${verificationToken}`;
 
   const mailOptions = {
     from: 'LegalQuest <noreply@legalquest.com>',
@@ -66,7 +67,8 @@ const sendVerificationEmail = async (email, username, verificationToken) => {
 };
 
 const sendPasswordResetEmail = async (email, username, resetToken) => {
-  const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const resetLink = `${clientUrl}/reset-password?token=${resetToken}`;
 
   const mailOptions = {
     from: 'LegalQuest <noreply@legalquest.com>',
@@ -111,7 +113,8 @@ const sendPasswordResetEmail = async (email, username, resetToken) => {
 
 const resendVerificationEmail = async (email, username, verificationToken) => {
   // Same as sendVerificationEmail, just with different subject line
-  const verificationLink = `http://localhost:5173/verify-email?token=${verificationToken}`;
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const verificationLink = `${clientUrl}/verify-email?token=${verificationToken}`;
 
   const mailOptions = {
     from: 'LegalQuest <noreply@legalquest.com>',

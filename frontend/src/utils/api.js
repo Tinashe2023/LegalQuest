@@ -1,7 +1,7 @@
 // frontend/src/utils/api.js
 // API utility functions for fetching modules, scenarios, and options
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = import.meta.env.VITE_API_URL;
 
 /**
  * Fetch all modules with translations
@@ -135,4 +135,3 @@ export function getScenarioOptions(scenario, language = 'en') {
   const translation = getTranslation(scenario.translations, language);
   return translation.options || [];
 }
-
