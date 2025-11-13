@@ -742,172 +742,216 @@ const App = () => {
   };
 
   const HomeView = () => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6 transition-colors">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="text-center flex-1">
-            <h1 className="text-4xl font-bold text-indigo-900 dark:text-indigo-300 mb-2">LegalQuest</h1>
-            <p className="text-indigo-600 dark:text-indigo-400">Learn Your Rights Through Play</p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-lg bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow"
-              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {darkMode ? (
-                <Sun className="w-5 h-5 text-yellow-500" />
-              ) : (
-                <Moon className="w-5 h-5 text-gray-700" />
-              )}
-            </button>
-
-            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow dark:shadow-gray-700">
-              <User className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-              <span className="font-semibold text-gray-800 dark:text-gray-200">{user?.username}</span>
-            </div>
-
-            
-            <button
-              onClick={() => { window.history.pushState({ view: 'games' }, '', '#games'); setCurrentView('games'); setSelectedModule(null); }}
-              className="px-3 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded-lg text-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors">
-              {language === 'en' ? 'Games' : 'खेल'}
-            </button>
-
-            {user?.role === 'admin' && (
-              <button
-                onClick={() => setShowAdmin(true)}
-                className="px-3 py-2 bg-gray-700 dark:bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-800 dark:hover:bg-gray-500 transition-colors">
-                Admin Panel
-              </button>
-            )}
-            <button
-              onClick={() => {
-                localStorage.removeItem('token');
-                setUser(null);
-                setShowLogin(true);
-              }}
-              className="px-3 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg text-sm hover:bg-red-700 dark:hover:bg-red-600 transition-colors">
-              Logout
-            </button>
-          </div>
-        </div>
-
-        {/* Banner Slider */}
-        <div className="mb-6">
+    <div className={`min-h-screen flex flex-col transition-colors ${darkMode ? 'bg-gray-950 text-gray-100' : 'bg-slate-900 text-white'}`}>
+      <header className="relative flex flex-col flex-1">
+        <div className="absolute inset-0">
           <BannerSlider 
-            slides={[]} // Empty array will use default placeholders
+            slides={[]} 
             autoplayInterval={5000}
             showControls={true}
+            fullBleed
           />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-slate-900"></div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-700 p-4 mb-6 transition-colors">
-          <div className="flex items-center justify-center gap-3">
-            <Globe className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            <span className="font-semibold text-gray-700 dark:text-gray-300">Language:</span>
-            {Object.entries(LANGUAGES).map(([code, lang]) => (
+        <div className="relative z-10 flex flex-col h-full">
+          <nav className="flex items-center justify-between px-6 lg:px-12 py-6">
+            <div>
+              <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight drop-shadow-lg">LegalQuest</h1>
+              <p className="text-sm lg:text-base font-medium text-slate-100/90 drop-shadow">
+                Learn Your Rights Through Play
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
               <button
-                key={code}
-                onClick={() => setLanguage(code)}
-                className={`px-4 py-2 rounded-lg transition-all ${
-                  language === code
-                    ? 'bg-indigo-600 dark:bg-indigo-700 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
+                onClick={() => setDarkMode(!darkMode)}
+                className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors shadow"
+                aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               >
-                {lang.flag} {lang.name}
+                {darkMode ? (
+                  <Sun className="w-5 h-5 text-yellow-300" />
+                ) : (
+                  <Moon className="w-5 h-5 text-slate-100" />
+                )}
               </button>
-            ))}
+
+              <div className="flex items-center gap-2 bg-white/15 px-4 py-2 rounded-lg shadow backdrop-blur">
+                <User className="w-5 h-5 text-white/90" />
+                <span className="font-semibold">{user?.username}</span>
+              </div>
+
+              <button
+                onClick={() => { window.history.pushState({ view: 'games' }, '', '#games'); setCurrentView('games'); setSelectedModule(null); }}
+                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-semibold rounded-lg shadow transition-colors">
+                {language === 'en' ? 'Games' : 'खेल'}
+              </button>
+
+              {user?.role === 'admin' && (
+                <button
+                  onClick={() => setShowAdmin(true)}
+                  className="px-4 py-2 bg-white/15 hover:bg-white/25 text-white font-semibold rounded-lg shadow transition-colors">
+                  Admin Panel
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  setUser(null);
+                  setShowLogin(true);
+                }}
+                className="px-4 py-2 bg-red-500 hover:bg-red-400 text-white font-semibold rounded-lg shadow transition-colors">
+                Logout
+              </button>
+            </div>
+          </nav>
+
+          <div className="flex-1 flex items-center">
+            <div className="px-6 lg:px-12 pb-20 max-w-4xl">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight drop-shadow-lg">
+                Discover Your Legal Adventure
+              </h2>
+              <p className="mt-5 text-lg md:text-xl text-slate-100/90 max-w-3xl drop-shadow">
+                Travel through interactive stories, master your rights, and collect badges as you defend justice in everyday situations across India.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <button
+                  onClick={() => {
+                    setCurrentView('games');
+                    window.history.pushState({ view: 'games' }, '', '#games');
+                  }}
+                  className="px-6 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-semibold rounded-full shadow-lg transition-transform hover:-translate-y-0.5"
+                >
+                  Start Playing
+                </button>
+                <button
+                  onClick={() => {
+                    const moduleSection = document.getElementById('modules-section');
+                    if (moduleSection) {
+                      moduleSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
+                  className="px-6 py-3 bg-white/15 hover:bg-white/25 text-white font-semibold rounded-full shadow-lg transition-transform hover:-translate-y-0.5 backdrop-blur"
+                >
+                  Explore Modules
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+      </header>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-700 p-6 mb-8 transition-colors">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="flex items-center justify-center mb-2">
-                <Star className="w-6 h-6 text-yellow-500 dark:text-yellow-400 mr-2" />
-                <span className="text-2xl font-bold text-gray-800 dark:text-gray-200">{userProgress.points}</span>
+      <main className={`flex-1 ${darkMode ? 'bg-gray-950 text-gray-100' : 'bg-slate-50 text-slate-900'}`}>
+        <div className="max-w-6xl mx-auto px-6 lg:px-12 -mt-16 relative z-20 pb-16 space-y-10">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl dark:shadow-gray-800/60 p-6 lg:p-8 transition-colors">
+            <div className="flex items-center justify-between flex-wrap gap-6">
+              <div className="flex items-center gap-3">
+                <Globe className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                <span className="font-semibold text-slate-800 dark:text-gray-200 uppercase tracking-wide text-xs">Language</span>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Points</p>
-            </div>
-            <div>
-              <div className="flex items-center justify-center mb-2">
-                <Award className="w-6 h-6 text-purple-500 dark:text-purple-400 mr-2" />
-                <span className="text-2xl font-bold text-gray-800 dark:text-gray-200">{userProgress.badges.length}</span>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(LANGUAGES).map(([code, lang]) => (
+                  <button
+                    key={code}
+                    onClick={() => setLanguage(code)}
+                    className={`px-4 py-2 rounded-full font-semibold transition-all ${
+                      language === code
+                        ? 'bg-indigo-600 text-white shadow-lg'
+                        : 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {lang.flag} {lang.name}
+                  </button>
+                ))}
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Badges</p>
-            </div>
-            <div>
-              <div className="flex items-center justify-center mb-2">
-                <BookOpen className="w-6 h-6 text-blue-500 dark:text-blue-400 mr-2" />
-                <span className="text-2xl font-bold text-gray-800 dark:text-gray-200">{userProgress.myRights.length}</span>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Rights Learned</p>
             </div>
           </div>
-        </div>
 
-        <h2 className="text-2xl font-bold text-indigo-900 dark:text-indigo-300 mb-4">Choose a Module</h2>
-        <div className="grid gap-4">
-          {database.modules.map(module => {
-            const isCompleted = userProgress.completedModules[module.id];
-            const progress = isCompleted ? 100 : 0;
-            const translation = getTranslation(module.translations);
-            
-            return (
-              <div
-                key={module.id}
-                onClick={() => handleModuleSelect(module.id)}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-700 p-6 cursor-pointer hover:shadow-xl dark:hover:shadow-gray-600 transition-all hover:scale-105"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="text-4xl">{module.icon}</div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 flex items-center">
-                        {translation.title}
-                        {isCompleted && <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400 ml-2" />}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">{translation.description}</p>
-                      <p className="text-indigo-600 dark:text-indigo-400 text-xs mt-1">🏆 Earn: {translation.badge}</p>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl dark:shadow-gray-800/60 p-6 lg:p-8 transition-colors">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+              <div className="bg-indigo-50 dark:bg-indigo-900/40 rounded-xl py-6 shadow-inner">
+                <div className="flex items-center justify-center mb-2">
+                  <Star className="w-6 h-6 text-yellow-500 dark:text-yellow-300 mr-2" />
+                  <span className="text-3xl font-bold text-slate-900 dark:text-white">{userProgress.points}</span>
+                </div>
+                <p className="text-sm font-semibold text-slate-600 dark:text-gray-300 uppercase tracking-wide">Points</p>
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900/40 rounded-xl py-6 shadow-inner">
+                <div className="flex items-center justify-center mb-2">
+                  <Award className="w-6 h-6 text-purple-500 dark:text-purple-300 mr-2" />
+                  <span className="text-3xl font-bold text-slate-900 dark:text-white">{userProgress.badges.length}</span>
+                </div>
+                <p className="text-sm font-semibold text-slate-600 dark:text-gray-300 uppercase tracking-wide">Badges</p>
+              </div>
+              <div className="bg-blue-50 dark:bg-blue-900/40 rounded-xl py-6 shadow-inner">
+                <div className="flex items-center justify-center mb-2">
+                  <BookOpen className="w-6 h-6 text-blue-500 dark:text-blue-300 mr-2" />
+                  <span className="text-3xl font-bold text-slate-900 dark:text-white">{userProgress.myRights.length}</span>
+                </div>
+                <p className="text-sm font-semibold text-slate-600 dark:text-gray-300 uppercase tracking-wide">Rights Learned</p>
+              </div>
+            </div>
+          </div>
+
+          <section id="modules-section">
+            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-6">Choose a Module</h2>
+            <div className="grid gap-6">
+              {database.modules.map(module => {
+                const isCompleted = userProgress.completedModules[module.id];
+                const progress = isCompleted ? 100 : 0;
+                const translation = getTranslation(module.translations);
+                
+                return (
+                  <div
+                    key={module.id}
+                    onClick={() => handleModuleSelect(module.id)}
+                    className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-gray-800/60 p-6 cursor-pointer hover:shadow-2xl dark:hover:shadow-gray-700 transition-all hover:-translate-y-1"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex items-start space-x-4">
+                        <div className="text-5xl">{module.icon}</div>
+                        <div>
+                          <h3 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                            {translation.title}
+                            {isCompleted && <CheckCircle className="w-6 h-6 text-green-500 dark:text-green-300" />}
+                          </h3>
+                          <p className="text-slate-600 dark:text-gray-300 mt-1">{translation.description}</p>
+                          <p className="text-indigo-600 dark:text-indigo-300 text-sm mt-2 font-semibold">🏆 Earn: {translation.badge}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-7 h-7 text-indigo-400 dark:text-indigo-300 flex-shrink-0" />
+                    </div>
+                    
+                    <div className="mt-6 bg-slate-200 dark:bg-gray-700 rounded-full h-2">
+                      <div
+                        className="bg-indigo-500 dark:bg-indigo-400 h-2 rounded-full transition-all"
+                        style={{ width: `${progress}%` }}
+                      ></div>
                     </div>
                   </div>
-                  <ChevronRight className="w-6 h-6 text-indigo-400 dark:text-indigo-500" />
-                </div>
-                
-                <div className="mt-4 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div
-                    className="bg-indigo-500 dark:bg-indigo-600 h-2 rounded-full transition-all"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        {userProgress.myRights.length > 0 && (
-          <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-700 p-6 transition-colors">
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
-              <BookOpen className="w-6 h-6 mr-2 text-indigo-600 dark:text-indigo-400" />
-              My Rights Handbook
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {userProgress.myRights.map((right, idx) => (
-                <span key={idx} className="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-full text-sm">
-                  {right}
-                </span>
-              ))}
+                );
+              })}
             </div>
-          </div>
-        )}
-        
-        {/* Footer */}
-        <Footer language={language} darkMode={darkMode} />
-      </div>
+          </section>
+          
+          {userProgress.myRights.length > 0 && (
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl dark:shadow-gray-800/60 p-6 lg:p-8 transition-colors">
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-3">
+                <BookOpen className="w-7 h-7 text-indigo-600 dark:text-indigo-300" />
+                My Rights Handbook
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {userProgress.myRights.map((right, idx) => (
+                  <span key={idx} className="bg-indigo-500/10 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-200 px-4 py-2 rounded-full text-sm font-semibold">
+                    {right}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+
+      <Footer language={language} darkMode={darkMode} />
     </div>
   );
 

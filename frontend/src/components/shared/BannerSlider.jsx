@@ -12,7 +12,8 @@ import banner4 from '../../assets/banners/Student.jpg';
 const BannerSlider = ({ 
   slides = [], 
   autoplayInterval = 5000,
-  showControls = true 
+  showControls = true,
+  fullBleed = false
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -72,9 +73,13 @@ const BannerSlider = ({
 
   const currentSlide = displaySlides[currentIndex];
 
+  const containerClasses = fullBleed
+    ? 'relative w-full h-full min-h-[70vh] overflow-hidden'
+    : 'relative w-full h-64 md:h-80 lg:h-96 overflow-hidden rounded-lg shadow-lg';
+
   return (
     <div 
-      className="relative w-full h-64 md:h-80 lg:h-96 overflow-hidden rounded-lg shadow-lg"
+      className={containerClasses}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -124,14 +129,14 @@ const BannerSlider = ({
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all z-10"
+            className={`absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all z-10 ${fullBleed ? 'mt-0' : ''}`}
             aria-label="Previous slide"
           >
             <ChevronLeft className="w-6 h-6 text-indigo-600" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all z-10"
+            className={`absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all z-10 ${fullBleed ? 'mt-0' : ''}`}
             aria-label="Next slide"
           >
             <ChevronRight className="w-6 h-6 text-indigo-600" />

@@ -1,5 +1,5 @@
 // src/components/ScenarioSnap.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchAllScenarios, getTranslation, getScenarioOptions } from '../utils/api';
 import { SCENARIO_SNAP_CARDS } from '../data/fundamentalRightsData';
@@ -104,7 +104,10 @@ const ScenarioSnap = ({ language = 'en', onComplete }) => {
     return allOptions.slice(0, 4); // Max 4 options
   };
 
-  const displayOptions = buildOptions();
+  const displayOptions = useMemo(
+    () => buildOptions(),
+    [currentScenario?.id, language, scenarios]
+  );
 
   const handleSubmit = () => {
     if (!selectedOption || showFeedback) return;
@@ -176,7 +179,7 @@ const ScenarioSnap = ({ language = 'en', onComplete }) => {
         </h3>
         <div className="flex items-center gap-4">
           <div className="text-sm">
-            <span className="text-gray-600">{language === 'en' ? 'Score:' : 'स्कोर:'} </span>
+            <span className="text-gray-800 dark:text-gray-200">{language === 'en' ? 'Score:' : 'स्कोर:'} </span>
             <span className="font-bold">{score}</span>
             {streak > 0 && (
               <span className="ml-2 text-orange-600">
@@ -197,7 +200,7 @@ const ScenarioSnap = ({ language = 'en', onComplete }) => {
 
       {/* Progress Bar */}
       <div className="mb-4">
-        <div className="flex justify-between text-sm text-gray-600 mb-1">
+        <div className="flex justify-between text-sm text-gray-800 dark:text-gray-200 mb-1">
           <span>{language === 'en' ? 'Card' : 'कार्ड'} {currentIndex + 1} / {scenarios.length}</span>
           {timeLeft !== null && (
             <span className={timeLeft <= 5 ? 'text-red-600 font-bold' : ''}>
@@ -241,7 +244,7 @@ const ScenarioSnap = ({ language = 'en', onComplete }) => {
                 </button>
               )}
             </div>
-            <p className="text-gray-700 mb-4">{translation.story || translation.concept}</p>
+            <p className="text-gray-900 dark:text-gray-100 mb-4">{translation.story || translation.concept}</p>
 
             {/* Options */}
             <div className="space-y-2">

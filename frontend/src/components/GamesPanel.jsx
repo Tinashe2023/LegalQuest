@@ -18,17 +18,17 @@ const GamesPanel = ({ language='en', onProgress, setCurrentView, darkMode, setDa
   ];
 
   return (
-    <div className="p-4 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 transition-colors">
+    <div className="p-4 min-h-screen bg-gradient-to-br from-slate-100 via-white to-indigo-50 dark:from-gray-900 dark:to-gray-800 transition-colors">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setCurrentView ? setCurrentView('home') : window.history.back()}
-            className="px-3 py-1 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm text-gray-800 dark:text-gray-200 transition-colors"
+            className="px-3 py-1 rounded bg-slate-200 dark:bg-gray-700 hover:bg-slate-300 dark:hover:bg-gray-600 text-sm font-semibold text-slate-800 dark:text-gray-100 transition-colors"
             aria-label="Back"
           >
             ← {language === 'en' ? 'Back' : 'वापस'}
           </button>
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">{language === 'en' ? 'Games' : 'खेल'}</h2>
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-gray-100 tracking-tight">{language === 'en' ? 'Games' : 'खेल'}</h2>
         </div>
         <div className="flex items-center gap-3">
           {/* Dark Mode Toggle */}
@@ -45,7 +45,7 @@ const GamesPanel = ({ language='en', onProgress, setCurrentView, darkMode, setDa
               )}
             </button>
           )}
-          <div className="text-sm text-gray-500 dark:text-gray-400">{language === 'en' ? 'Play & learn' : 'खेलें और सीखें'}</div>
+          <div className="text-sm font-semibold text-slate-600 dark:text-gray-300 uppercase tracking-wide">{language === 'en' ? 'Play & Learn' : 'खेलें और सीखें'}</div>
         </div>
       </div>
       {!selected && (
@@ -54,10 +54,10 @@ const GamesPanel = ({ language='en', onProgress, setCurrentView, darkMode, setDa
             <button 
               key={g.id} 
               onClick={() => setSelected(g.id)} 
-              className="p-4 bg-white dark:bg-gray-800 rounded shadow dark:shadow-gray-700 text-left hover:shadow-lg dark:hover:shadow-gray-600 transition-all"
+              className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700 text-left hover:shadow-xl dark:hover:shadow-gray-600 transition-all border border-transparent hover:border-indigo-200 dark:hover:border-indigo-500/40"
             >
-              <div className="font-semibold text-gray-800 dark:text-gray-200">{g.label}</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">{g.id}</div>
+              <div className="font-bold text-slate-900 dark:text-gray-100 text-lg">{g.label}</div>
+              <div className="text-sm text-slate-600 dark:text-gray-400 mt-1 uppercase tracking-wide">{g.id}</div>
             </button>
           ))}
         </div>
@@ -75,7 +75,7 @@ const GamesPanel = ({ language='en', onProgress, setCurrentView, darkMode, setDa
             <div>{games.find(g => g.id === selected)?.comp}</div>
           </>
         ) : (
-          <div className="text-sm text-gray-600 dark:text-gray-400">{language === 'en' ? 'Choose a game to play' : 'खेल चुनें'}</div>
+          <div className="text-base font-semibold text-slate-700 dark:text-gray-300">{language === 'en' ? 'Choose a game to play' : 'खेल चुनें'}</div>
         )}
       </div>
     </div>
