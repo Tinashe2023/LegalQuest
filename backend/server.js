@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 require('dotenv').config();
 
 const modulesRouter = require('./routes/modules');
@@ -12,7 +11,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+const cors = require('cors');
+app.use(cors({
+  origin: [
+    'https://legalquest-frontend.onrender.com', // Your Live Frontend (Copy this EXACTLY)
+    'http://localhost:5173',                  // Your Local Frontend (Keep this for testing)
+    'http://localhost:3000'                   // Just in case
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
