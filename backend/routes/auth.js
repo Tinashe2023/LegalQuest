@@ -1,3 +1,4 @@
+// backend/routes/auth.js
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -17,7 +18,6 @@ router.post('/register', async (req, res) => {
   if (username.length < 3) {
     return res.status(400).json({ error: 'Username must be at least 3 characters' });
   }
-  // A simple email regex check
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ error: 'Please enter a valid email address' });
@@ -36,15 +36,18 @@ router.post('/register', async (req, res) => {
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
+    // --- VIVA MODIFICATION: Force email_verified to TRUE ---
     const result = await pool.query(
       `INSERT INTO users (username, email, password_hash, role, email_verified, verification_token, verification_token_expires) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) 
        RETURNING id, username, email, role, email_verified`,
-      [username, email, hashedPassword, 'user', false, verificationToken, tokenExpiry]
+      [username, email, hashedPassword, 'user', true, verificationToken, tokenExpiry] 
     );
 
     const user = result.rows[0];
-    await sendVerificationEmail(email, username, verificationToken);
+    
+    // --- VIVA MODIFICATION: Commented out email sending ---
+    // await sendVerificationEmail(email, username, verificationToken);
 
     await pool.query(
       'INSERT INTO user_progress (user_id) VALUES ($1)',
@@ -52,7 +55,8 @@ router.post('/register', async (req, res) => {
     );
 
     res.json({ 
-      message: 'Registration successful! Please check your email to verify your account.',
+      // Changed message to indicate instant success
+      message: 'Registration successful! You have been automatically verified for the demo.',
       user: { 
         id: user.id, 
         username: user.username, 
@@ -66,7 +70,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Verify email
+// Verify email (Kept just in case, but not needed for new users)
 router.get('/verify-email/:token', async (req, res) => {
   const { token } = req.params;
 
@@ -101,7 +105,7 @@ router.get('/verify-email/:token', async (req, res) => {
 
     res.json({ 
       message: 'Email verified successfully!',
-      token: jwtToken,  // ✅ FIXED: was 'jwtToken' variable name
+      token: jwtToken,
       user: {
         id: user.id,
         username: user.username,
@@ -144,7 +148,8 @@ router.post('/resend-verification', async (req, res) => {
       [verificationToken, tokenExpiry, user.id]
     );
 
-    await resendVerificationEmail(email, user.username, verificationToken);
+    // Just log it in demo mode
+    console.log("Demo Mode: Verification resent (fake)");
 
     res.json({ message: 'Verification email sent! Please check your inbox.' });
 
@@ -242,9 +247,10 @@ router.post('/login', async (req, res) => {
 
     const user = result.rows[0];
 
-    if (!user.email_verified) {
-      return res.status(403).json({ error: 'Please verify your email before logging in' });
-    }
+    // --- VIVA MODIFICATION: Commented out verification check ---
+    // if (!user.email_verified) {
+    //   return res.status(403).json({ error: 'Please verify your email before logging in' });
+    // }
 
     const isValid = await bcrypt.compare(password, user.password_hash);
 
