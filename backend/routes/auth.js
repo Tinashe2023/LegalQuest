@@ -1,14 +1,22 @@
 // backend/routes/auth.js
 const express = require('express');
 const router = express.Router();
+router.use(apiLimiter);
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const crypto = require('crypto');
 const { sendVerificationEmail, sendPasswordResetEmail, resendVerificationEmail } = require('../utils/emailService');
-
+const rateLimit = require('express-rate-limit');
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev-only';
 
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window`
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
 // Register new user
 router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
@@ -298,7 +306,7 @@ const verifyToken = (req, res, next) => {
 };
 
 // Get current user
-router.get('/me', verifyToken, async (req, res) => {
+router.get('/me', verifyToken,apiLimiter, async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT id, username, email, role FROM users WHERE id = $1',
