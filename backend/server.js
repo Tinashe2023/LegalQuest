@@ -32,6 +32,16 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
+const path = require('path');
+
+// 1. Tell Express where your frontend files (HTML/JS/CSS) are
+// Since server.js is in /backend, we go up one level to find /frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// 2. Handle the "Home" route - Send the index.html file
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);

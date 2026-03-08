@@ -1,0 +1,4 @@
+ΓÜá∩╕Å EMAIL SERVICE: VIVA BYPASS MODE ACTIVE
+Emails will NOT be sent. Links will be logged to console.
+≡ƒÜÇ Server running on http://localhost:3000
+Γ£à Connected to PostgreSQL database
