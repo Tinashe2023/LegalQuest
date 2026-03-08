@@ -1,7 +1,6 @@
 // backend/routes/auth.js
 const express = require('express');
 const router = express.Router();
-router.use(apiLimiter);
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
@@ -17,6 +16,8 @@ const apiLimiter = rateLimit({
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
+
+router.use(apiLimiter);
 // Register new user
 router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
@@ -49,11 +50,11 @@ router.post('/register', async (req, res) => {
       `INSERT INTO users (username, email, password_hash, role, email_verified, verification_token, verification_token_expires) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) 
        RETURNING id, username, email, role, email_verified`,
-      [username, email, hashedPassword, 'user', true, verificationToken, tokenExpiry] 
+      [username, email, hashedPassword, 'user', true, verificationToken, tokenExpiry]
     );
 
     const user = result.rows[0];
-    
+
     // --- VIVA MODIFICATION: Commented out email sending ---
     // await sendVerificationEmail(email, username, verificationToken);
 
@@ -62,13 +63,13 @@ router.post('/register', async (req, res) => {
       [user.id]
     );
 
-    res.json({ 
+    res.json({
       // Changed message to indicate instant success
       message: 'Registration successful! You have been automatically verified for the demo.',
-      user: { 
-        id: user.id, 
-        username: user.username, 
-        email: user.email 
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email
       }
     });
 
@@ -111,7 +112,7 @@ router.get('/verify-email/:token', async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    res.json({ 
+    res.json({
       message: 'Email verified successfully!',
       token: jwtToken,
       user: {
@@ -242,7 +243,7 @@ router.post('/reset-password/:token', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  
+
   try {
     const result = await pool.query(
       'SELECT * FROM users WHERE email = $1',
@@ -272,14 +273,14 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    res.json({ 
-      token, 
-      user: { 
-        id: user.id, 
-        username: user.username, 
-        email: user.email, 
-        role: user.role 
-      } 
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
     });
 
   } catch (err) {
@@ -306,7 +307,7 @@ const verifyToken = (req, res, next) => {
 };
 
 // Get current user
-router.get('/me', verifyToken,apiLimiter, async (req, res) => {
+router.get('/me', verifyToken, apiLimiter, async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT id, username, email, role FROM users WHERE id = $1',
