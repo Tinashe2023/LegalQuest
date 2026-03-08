@@ -34,13 +34,15 @@ app.get('/api/health', (req, res) => {
 
 const path = require('path');
 
-// 1. Tell Express where your frontend files (HTML/JS/CSS) are
-// Since server.js is in /backend, we go up one level to find /frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
+// This finds the 'dist' folder created by the build command
+const frontendPath = path.join(__dirname, '..', 'frontend', 'dist');
 
-// 2. Handle the "Home" route - Send the index.html file
+// Serve the static files
+app.use(express.static(frontendPath));
+
+// Ensure React Router works by sending all other requests to index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+  res.sendFile(path.join(frontendPath, 'index.html'));
 });
 // Start server
 app.listen(PORT, () => {
