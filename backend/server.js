@@ -32,6 +32,18 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
+const path = require('path');
+
+// This finds the 'dist' folder created by the build command
+const frontendPath = path.join(__dirname, '..', 'frontend', 'dist');
+
+// Serve the static files
+app.use(express.static(frontendPath));
+
+// Ensure React Router works by sending all other requests to index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
